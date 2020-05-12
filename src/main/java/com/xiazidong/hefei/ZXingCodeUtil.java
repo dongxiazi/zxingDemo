@@ -10,6 +10,8 @@ import javax.imageio.ImageIO;
 import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.io.File;
+import java.io.IOException;
+import java.net.URL;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -151,7 +153,50 @@ public class ZXingCodeUtil {
 
         return hints;
     }
+    /***
+     * 二维码嵌套背景图的方法
+     *@param bigPath 背景图 - 可传网络地址
+     *@param smallPath 二维码地址 - 可传网络地址
+     *@param newFilePath 生成新图片的地址
+     * @param  x 二维码x坐标
+     *  @param  y 二维码y坐标
+     * */
+    public static void mergeImage(String bigPath, String smallPath, String newFilePath,String x, String y) throws IOException {
 
+        try {
+            BufferedImage small;
+            BufferedImage big;
+            if (bigPath.contains("http://") || bigPath.contains("https://")) {
+                URL url = new URL(bigPath);
+                big = ImageIO.read(url);
+            } else {
+                big = ImageIO.read(new File(bigPath));
+            }
+
+
+            if (smallPath.contains("http://") || smallPath.contains("https://")) {
+
+                URL url = new URL(smallPath);
+                small = ImageIO.read(url);
+            } else {
+                small = ImageIO.read(new File(smallPath));
+            }
+
+            Graphics2D g = big.createGraphics();
+
+            float fx = Float.parseFloat(x);
+            float fy = Float.parseFloat(y);
+            int x_i = (int) fx;
+            int y_i = (int) fy;
+            g.drawImage(small, x_i, y_i, small.getWidth(), small.getHeight(), null);
+            g.dispose();
+            ImageIO.write(big, "png", new File(newFilePath));
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+    }
     /**
      * 这个工具类 ZXingCodeUtil 是提供二维码图片生成的工具 首先使用的时候须要实例化
      * ZXingCodeUtil 然后实例化參数 ZXingConfig 和 LogoConfig 通过以下的演示能够详细看參数是依照什么循序进行设置 最后调用
@@ -175,6 +220,9 @@ public class ZXingCodeUtil {
             Thread.sleep(500);  // 缓冲
 
             zp.parseQR_CODEImage(bim);  // 解析调用
+
+
+            mergeImage("D:\\baobao.jpg", "D:\\Michael_QRCode.png", "D:\\beijing.png","63", "163");
         } catch (Exception e) {
             e.printStackTrace();
         }
